@@ -17,43 +17,54 @@ public class SkillState
 
 public class HeroSkillSystem : MonoBehaviour
 {
-    public Dictionary<SkillType, SkillState> skills = new();
-    public StatusCtrl statusCtrl;
+    [Header("Fireball Prefabs (by Level)")]
+    public GameObject fireballLevel1Prefab;
+    public GameObject fireballLevel2Prefab;
+    public GameObject fireballLevel3Prefab;
 
-    private void Awake()
+    [Header("Healing Prefab")]
+    public GameObject healSkillPrefab;
+
+    [Header("技能释放位置")]
+    public Transform skillSpawnPoint;
+
+    public Dictionary<SkillType, SkillState> skills = new();
+
+    void Awake()
     {
         skills[SkillType.Heal] = new SkillState();
         skills[SkillType.Fireball] = new SkillState();
-        statusCtrl = GetComponent<StatusCtrl>();
     }
 
-    public void UpgradeSkill(SkillType type)
+    public void CastHeal()
     {
-        if (skills.ContainsKey(type))
+        int level = skills[SkillType.Heal].level;
+        GameObject healObj = Instantiate(healSkillPrefab, transform.position, Quaternion.identity);
+        if (healObj.TryGetComponent(out HealSkillEffect effect))
         {
-            skills[type].Upgrade();
-            Debug.Log($"Skill {type} upgraded to level {skills[type].level}");
+            effect.skillLevel = level;
+            effect.Activate(gameObject, gameObject); // 自己给自己回血
         }
     }
 
-    public void CastSkill(SkillType type)
+    public void CastFireball(GameObject targetEnemy)
     {
-        if (!skills.ContainsKey(type)) return;
-
-        int level = skills[type].level;
-        Debug.Log($"Casting {type} at level {level}");
-
-        switch (type)
+        int level = skills[SkillType.Fireball].level;
+        GameObject prefab = level switch
         {
-            case SkillType.Heal:
-                if (level >= 1) HealPlayer();
-                if (level >= 2) AddShield();
-                if (level == 3) StartCoroutine(HealOverTime());
-                break;
+            1 => fireballLevel1Prefab,
+            2 => fireballLevel2Prefab,
+            3 => fireballLevel3Prefab,
+            _ => fireballLevel1Prefab
+        };
 
-            case SkillType.Fireball:
-                // 🔥 接口留空，等待后续扩展
-                break;
+        if (prefab == null || targetEnemy == null) return;
+
+        GameObject fireball = Instantiate(prefab, targetEnemy.transform.position, Quaternion.identity);
+        if (fireball.TryGetComponent(out FireballSkillEffect effect))
+        {
+            effect.fireballLevel = level;
+            effect.Activate(gameObject, targetEnemy);
         }
     }
 

@@ -25,6 +25,12 @@ public class StatusCtrl : MonoBehaviour
 
     public void TakeDamage(int damage, Transform source) 
     {
+        if (GameManager.Instance != null && GameManager.Instance.IsTrainingMode())
+        {
+            Debug.Log($"{gameObject.name} 在训练模式下免疫伤害.");
+            return;
+        }
+
         int finalDamage = Mathf.Max(damage, 1);
         Debug.Log($"{gameObject.name} took {damage} damage from {source.name}. HP left: {currentHealth}");
         if (currentArm == 0) currentHealth -= finalDamage;

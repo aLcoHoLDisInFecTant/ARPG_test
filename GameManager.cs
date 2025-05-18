@@ -2,28 +2,25 @@ using UnityEngine;
 
 public class GameManager : MonoBehaviour
 {
-    public GameObject canvasMainMenu;
-    public GameObject canvasHUD;
-    public GameObject playerPrefab;
-    public Transform birthPoint;
+    public static GameManager Instance { get; private set; }
 
-    public void StartGame_Normal()
+    public enum GameMode { Normal, Training }
+    public GameMode CurrentMode { get; private set; } = GameMode.Normal;
+
+    private void Awake()
     {
-        EventManager.Instance.SetGameMode(EventManager.GameMode.Normal);
-        StartGame();
+        if (Instance != null) Destroy(gameObject);
+        else
+        {
+            Instance = this;
+            DontDestroyOnLoad(gameObject);
+        }
     }
 
-    public void StartGame_Training()
+    public void SetGameMode(GameMode mode)
     {
-        EventManager.Instance.SetGameMode(EventManager.GameMode.Training);
-        StartGame();
+        CurrentMode = mode;
     }
 
-    private void StartGame()
-    {
-        canvasMainMenu.SetActive(false);
-        canvasHUD.SetActive(true);
-
-        GameObject player = Instantiate(playerPrefab, birthPoint.position, birthPoint.rotation);
-    }
+    public bool IsTrainingMode() => CurrentMode == GameMode.Training;
 }

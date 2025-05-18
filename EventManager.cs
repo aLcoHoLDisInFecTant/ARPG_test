@@ -3,26 +3,26 @@ using System;
 
 public class EventManager : MonoBehaviour
 {
-    public static EventManager Instance { get; private set; }
+    //public GameObject canvasMainMenu;
+    public GameObject Canvas_SkillTree;
+    public GameObject Canvas_HUD_Hero;
+    public GameObject Canvas_HUD_Boss;
+    public GameObject playerPrefab;
+    public Transform birthPoint;
 
-    public enum GameMode { Normal, Training }
-    public GameMode CurrentMode { get; private set; } = GameMode.Normal;
-
-    public event Action<GameMode> OnGameModeSet;
-
-    private void Awake()
+    private void Start()
     {
-        if (Instance != null) Destroy(gameObject);
-        else
-        {
-            Instance = this;
-            DontDestroyOnLoad(gameObject);
-        }
+        StartGame();
     }
+    
 
-    public void SetGameMode(GameMode mode)
+    private void StartGame()
     {
-        CurrentMode = mode;
-        OnGameModeSet?.Invoke(mode);
+        Canvas_SkillTree.SetActive(false);
+        Canvas_HUD_Hero.SetActive(true);
+        Canvas_HUD_Boss.SetActive(true);
+
+        GameObject player = Instantiate(playerPrefab, birthPoint.position, birthPoint.rotation);
     }
+    
 }

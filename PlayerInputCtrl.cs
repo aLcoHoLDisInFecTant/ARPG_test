@@ -32,6 +32,9 @@ public class PlayerInputCtrl : MonoBehaviour
     private float gestureStartTime;
     private float lastEffectTime = 0f;
 
+    public HeroSkillSystem heroSkillSystem;
+    public GameObject targetEnemy;
+
     void Start()
     {
         if (lineRenderer == null)
@@ -81,10 +84,30 @@ public class PlayerInputCtrl : MonoBehaviour
             else
             {
                 GestureType gesture = RecognizeGesture(points);
+                HandleSkillTrigger(gesture);
                 combatHandler.PerformGesture(gesture);
             }
 
             lineRenderer.positionCount = 0;
+        }
+    }
+
+    void HandleSkillTrigger(GestureType gesture) 
+    {
+        if (heroSkillSystem == null) return;
+
+        switch (gesture)
+        {
+            case GestureType.ReVshape:
+                heroSkillSystem.CastHeal();
+                break;
+
+            case GestureType.Slash_Z:
+                heroSkillSystem.CastFireball(targetEnemy);
+                break;
+
+            default:
+                break;
         }
     }
 
